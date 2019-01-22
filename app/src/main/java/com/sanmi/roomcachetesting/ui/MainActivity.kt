@@ -1,15 +1,11 @@
 package com.sanmi.roomcachetesting.ui
 
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
-import android.net.Network
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import com.sanmi.roomcachetesting.Data.network.NetWorkState
-import com.sanmi.roomcachetesting.Data.network.model.TodoResult
 import com.sanmi.roomcachetesting.R
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -22,6 +18,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         viewModel = ViewModelProviders.of(this).get(MainActivityViewModel::class.java)
+
+        viewModel.getdata().observe(this, Observer {
+
+            it?.forEach {
+                text_txt.append(it.title)
+            }
+        })
 
 
         load_btn.setOnClickListener {
@@ -36,6 +39,12 @@ class MainActivity : AppCompatActivity() {
 
 
 
+        observeNetworkState()
+
+
+    }
+
+    private fun observeNetworkState() {
         viewModel.observeNetworkState().observe(this, Observer { network: NetWorkState? ->
 
             when (network) {
@@ -58,7 +67,5 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
-
-
     }
 }

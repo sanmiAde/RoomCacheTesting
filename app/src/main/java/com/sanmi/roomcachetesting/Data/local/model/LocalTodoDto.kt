@@ -5,17 +5,17 @@ import android.arch.persistence.room.PrimaryKey
 import android.support.annotation.NonNull
 
 @Entity(tableName = "todo_table")
-data class Todo(
+data class  LocalTodoDto(
 
         @NonNull
         @PrimaryKey
-        val id: Int? = null,
+        var id: Int? = 0,
 
-        val userId: Int? = null,
-
-
-        val title: String? = null,
+        var userId: Int? = 0,
 
 
-        val completed: Boolean? = null
+        var title: String? = "",
+
+
+        var completed: Boolean? = false
 )
