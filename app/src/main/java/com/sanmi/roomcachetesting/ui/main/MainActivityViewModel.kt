@@ -1,4 +1,4 @@
-package com.sanmi.roomcachetesting.ui
+package com.sanmi.roomcachetesting.ui.main
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
@@ -12,7 +12,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     private val repository: Repository = Repository.getRepository(application)
 
-    fun initApiCall(dataType: String): LiveData<List<RemoteTodoDto>> {
+    fun initApiCall(dataType: String): LiveData<List<LocalTodoDto>> {
 
         return repository.initApiCall(dataType)
     }
@@ -22,7 +22,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     }
 
 
-    fun getdata() : LiveData<List<LocalTodoDto>>{
+    fun getData() : LiveData<List<LocalTodoDto>>{
         return  repository.getData()
     }
 }

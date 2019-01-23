@@ -4,7 +4,6 @@ import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.util.Log
-import com.mobandme.android.transformer.Transformer
 import com.sanmi.roomcachetesting.Data.local.AppDatabase
 import com.sanmi.roomcachetesting.Data.local.Dao.TodoDao
 import com.sanmi.roomcachetesting.Data.local.model.LocalTodoDto
@@ -25,7 +24,6 @@ class Repository(private val application: Application) {
 
     val networkState: MutableLiveData<NetWorkState> = MutableLiveData()
     private val TAG = Repository::class.simpleName
-    private var remoteTodoDtoResults: List<RemoteTodoDto>? = null
     private val todoDao: TodoDao
 
     init {
@@ -34,22 +32,22 @@ class Repository(private val application: Application) {
     }
 
 
-    fun initApiCall(dataType: String): LiveData<List<RemoteTodoDto>> {
+    fun initApiCall(dataType: String): LiveData<List<LocalTodoDto>> {
 
 
         networkState.value = NetWorkState.NotLoaded
 
         val service: JsonPlaceHolderInterface = RetrofitInstance.initRetrofitInstance()
         val call: Call<List<RemoteTodoDto>> = service.getFakeData(dataType)
-        val remoteTodoDtoListLiveData: MutableLiveData<List<RemoteTodoDto>> = MutableLiveData()
 
-        networkCall(call, remoteTodoDtoListLiveData)
 
-        return remoteTodoDtoListLiveData
+        networkCall(call)
+
+        return getData()
     }
 
 
-    private fun networkCall(call: Call<List<RemoteTodoDto>>, remoteTodoDtoListLiveData: MutableLiveData<List<RemoteTodoDto>>) {
+    private fun networkCall(call: Call<List<RemoteTodoDto>>) {
 
         networkState.value = NetWorkState.Loading
 
@@ -58,11 +56,9 @@ class Repository(private val application: Application) {
                 when {
                     response?.isSuccessful!! -> {
                         networkState.value = NetWorkState.Success
-                        remoteTodoDtoListLiveData.value = response?.body()
 
                         doAsync {
-                            convertToDatabaseDto(remoteTodoDtoResults!!)
-                           todoDao.insertEarthquakes(convertToDatabaseDto(remoteTodoDtoResults!!))
+                           todoDao.insertEarthquakes(convertToDatabaseDto(response.body()!!))
                         }
                     }
                     else -> {
@@ -81,12 +77,12 @@ class Repository(private val application: Application) {
 
     private fun convertToDatabaseDto(networkRemoteTodoDtos : List<RemoteTodoDto>): List<LocalTodoDto> {
 
-        val homeModelTransformer = Transformer.Builder()
-                .build(RemoteTodoDto::class.java)
         val localTodoDtos = mutableListOf<LocalTodoDto>()
 
         networkRemoteTodoDtos.forEach {
-           localTodoDtos.add( homeModelTransformer.transform(it) as LocalTodoDto)
+
+            localTodoDtos.add( LocalTodoDto(it.id, it.userId, it.title, it.completed))
+
         }
 
         return localTodoDtos
